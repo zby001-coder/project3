@@ -152,7 +152,7 @@ public class MusicListChecker implements MusicListController {
     }
 
     @Override
-    public String ifLiked(Long listId, Long userId) {
+    public String ifLiked(Long listId, HttpServletRequest request) {
         return Others.SUCCESS;
     }
 }

@@ -44,7 +44,7 @@ public interface MusicController {
 
     String selectAllCount() throws IOException;
 
-    String ifLiked(Long musicId, Long userId) throws JsonProcessingException;
+    String ifLiked(Long musicId, HttpServletRequest request) throws JsonProcessingException;
 
     String ifCollected(Long listId, Long musicId) throws JsonProcessingException;
 }

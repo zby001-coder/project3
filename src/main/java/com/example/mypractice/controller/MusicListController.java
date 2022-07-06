@@ -42,5 +42,5 @@ public interface MusicListController {
 
     String unsealMusicList(MusicList musicList) throws FilterException, IOException;
 
-    String ifLiked(Long listId, Long userId) throws JsonProcessingException;
+    String ifLiked(Long listId, HttpServletRequest request) throws JsonProcessingException;
 }

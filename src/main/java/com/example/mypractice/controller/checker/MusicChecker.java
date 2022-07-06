@@ -163,7 +163,7 @@ public class MusicChecker implements MusicController {
     }
 
     @Override
-    public String ifLiked(Long musicId, Long userId) {
+    public String ifLiked(Long musicId, HttpServletRequest request) {
         return Others.SUCCESS;
     }
 

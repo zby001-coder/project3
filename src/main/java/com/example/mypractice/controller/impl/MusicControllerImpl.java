@@ -208,9 +208,10 @@ public class MusicControllerImpl implements MusicController {
 
     @Override
     @GetMapping("/user/music/ifLike")
-    public String ifLiked(@RequestParam Long musicId,@RequestParam Long userId) throws JsonProcessingException {
+    public String ifLiked(@RequestParam Long musicId,HttpServletRequest request) throws JsonProcessingException {
         HashMap<String, Object> result = new HashMap<>(2);
-        musicChecker.ifLiked(musicId, userId);
+        Long userId = (Long) request.getAttribute(Others.USER_ID);
+        musicChecker.ifLiked(musicId, request);
         boolean ifLiked = musicService.ifLiked(musicId, userId);
         result.put(Bodies.RESULT, ifLiked);
         result.put(Bodies.MESSAGE, Others.SUCCESS);
