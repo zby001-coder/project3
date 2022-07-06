@@ -69,7 +69,7 @@ public class MusicListChecker implements MusicListController {
     }
 
     @Override
-    public String updateMusicList(MusicList musicList,HttpServletRequest request) throws FilterException, AccessException {
+    public String updateMusicList(MusicList musicList, HttpServletRequest request) throws FilterException, AccessException {
         if (musicList == null) {
             throw new FilterException("MUSIC_LIST");
         }
@@ -135,13 +135,19 @@ public class MusicListChecker implements MusicListController {
 
     @Override
     public String banMusicList(MusicList musicList) throws FilterException {
-        collectionNotEmptyFilter.doFilter(musicList, "MUSIC_LIST", false);
+        if (musicList == null) {
+            throw new FilterException("MUSIC_LIST");
+        }
+        musicListFilter.filterId(musicList.getId(), false);
         return Others.SUCCESS;
     }
 
     @Override
     public String unsealMusicList(MusicList musicList) throws FilterException {
-        collectionNotEmptyFilter.doFilter(musicList, "MUSIC_LIST", false);
+        if (musicList == null) {
+            throw new FilterException("MUSIC_LIST");
+        }
+        musicListFilter.filterId(musicList.getId(), false);
         return Others.SUCCESS;
     }
 

@@ -76,7 +76,7 @@
     </select>
     <select id="selectAllMusicList" resultMap="MusicListOutMap">
         SELECT tb_music_list.*,
-               tb_user.idx_user_name,
+               tb_user.idx_user_name
         FROM tb_music_list
                  LEFT JOIN tb_user ON tb_music_list.author_id = tb_user.pk_id
         WHERE tb_music_list.pk_id > #{lastIndex} LIMIT ${@com.example.mypractice.commons.constant.Others@PAGE_SIZE}

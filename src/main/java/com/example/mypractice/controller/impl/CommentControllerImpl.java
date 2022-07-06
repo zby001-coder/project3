@@ -12,9 +12,7 @@ import com.example.mypractice.model.database.User;
 import com.example.mypractice.service.CommentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -32,7 +30,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @PostMapping("/user/comment/music")
-    public String createComment(Comment comment, HttpServletRequest request) throws FilterException, IOException {
+    public String createComment(@RequestBody Comment comment, HttpServletRequest request) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(1);
         commentChecker.createComment(comment, request);
         Long userId = (Long) request.getAttribute(Others.USER_ID);
@@ -44,7 +42,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/user/comment/music/selectAll")
-    public String selectCommentSelf(Long lastIndex, HttpServletRequest request) throws FilterException, IOException {
+    public String selectCommentSelf(@RequestParam(required = false) Long lastIndex, HttpServletRequest request) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentSelf(lastIndex, request);
         Long userId = (Long) request.getAttribute(Others.USER_ID);
@@ -68,7 +66,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @PostMapping("/user/comment/music/delete")
-    public String deleteCommentSelf(Comment comment,HttpServletRequest request) throws FilterException, IOException, AccessException {
+    public String deleteCommentSelf(@RequestBody Comment comment,HttpServletRequest request) throws FilterException, IOException, AccessException {
         HashMap<String, Object> result = new HashMap<>(1);
         commentChecker.deleteCommentSelf(comment,request);
         commentService.deleteComment(comment);
@@ -78,7 +76,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/unAuth/comment/music/select/commentId")
-    public String selectCommentByCommentId(Long id) throws FilterException, IOException {
+    public String selectCommentByCommentId(@RequestParam Long id) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentByCommentId(id);
         Comment comment = commentService.selectCommentByCommentId(new Comment(id));
@@ -89,7 +87,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/unAuth/comment/music/select/id")
-    public String selectCommentByMusic(Long id, Long lastIndex) throws FilterException, IOException {
+    public String selectCommentByMusic(@RequestParam Long id, @RequestParam(required = false) Long lastIndex) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentByMusic(id, lastIndex);
         List<Comment> comment = commentService.selectCommentByMusic(new Music(id), lastIndex);
@@ -100,7 +98,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/unAuth/comment/music/count/id")
-    public String selectCountByMusic(Long id) throws FilterException, IOException {
+    public String selectCountByMusic(@RequestParam Long id) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCountByMusic(id);
         Long count = commentService.selectCountByMusic(new Music(id));
@@ -111,7 +109,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @PostMapping("/admin/comment/music/delete")
-    public String deleteComment(Comment comment) throws FilterException, IOException {
+    public String deleteComment(@RequestBody Comment comment) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(1);
         commentChecker.deleteComment(comment);
         commentService.deleteComment(comment);
@@ -121,7 +119,9 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/admin/comment/music/select/content")
-    public String selectCommentByContent(String content, Long lastIndex, Double lastScore) throws FilterException, IOException {
+    public String selectCommentByContent(@RequestParam String content,
+                                         @RequestParam(required = false) Long lastIndex,
+                                         @RequestParam(required = false) Double lastScore) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentByContent(content, lastIndex, lastScore);
         List<Comment> comment = commentService.selectCommentByContent(new Comment(content), lastIndex, lastScore);
@@ -132,7 +132,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/admin/comment/music/count/content")
-    public String selectCountByContent(String content) throws FilterException, IOException {
+    public String selectCountByContent(@RequestParam String content) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCountByContent(content);
         Long count = commentService.selectCountByContent(new Comment(content));
@@ -143,7 +143,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/admin/comment/music/select/userId")
-    public String selectCommentByUser(Long id, Long lastIndex) throws FilterException, IOException {
+    public String selectCommentByUser(@RequestParam Long id,@RequestParam(required = false) Long lastIndex) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentByUser(id, lastIndex);
         List<Comment> comment = commentService.selectCommentByUser(new User(id), lastIndex);
@@ -154,7 +154,7 @@ public class CommentControllerImpl implements CommentController {
 
     @Override
     @GetMapping("/admin/comment/music/count/userId")
-    public String selectCommentCountByUser(Long id) throws FilterException, IOException {
+    public String selectCommentCountByUser(@RequestParam Long id) throws FilterException, IOException {
         HashMap<String, Object> result = new HashMap<>(2);
         commentChecker.selectCommentCountByUser(id);
         Long count = commentService.selectCountByUser(new User(id));

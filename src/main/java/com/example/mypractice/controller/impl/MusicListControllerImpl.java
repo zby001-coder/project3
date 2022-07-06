@@ -77,9 +77,9 @@ public class MusicListControllerImpl implements MusicListController {
 
     @Override
     @PostMapping("/user/musicList/delete")
-    public String deleteMusicList(@RequestBody MusicList musicList,HttpServletRequest request) throws FilterException, IOException, AccessException {
+    public String deleteMusicList(@RequestBody MusicList musicList, HttpServletRequest request) throws FilterException, IOException, AccessException {
         HashMap<String, Object> result = new HashMap<>(1);
-        musicListChecker.deleteMusicList(musicList,request);
+        musicListChecker.deleteMusicList(musicList, request);
         musicListService.deleteMusicList(musicList);
         result.put(Bodies.MESSAGE, Others.SUCCESS);
         return objectMapper.writeValueAsString(result);
@@ -87,9 +87,9 @@ public class MusicListControllerImpl implements MusicListController {
 
     @Override
     @PostMapping("/user/musicList/update")
-    public String updateMusicList(@RequestBody MusicList musicList,HttpServletRequest request) throws FilterException, IOException, AccessException {
+    public String updateMusicList(@RequestBody MusicList musicList, HttpServletRequest request) throws FilterException, IOException, AccessException {
         HashMap<String, Object> result = new HashMap<>(1);
-        musicListChecker.updateMusicList(musicList,request);
+        musicListChecker.updateMusicList(musicList, request);
         musicListService.updateMusicList(musicList);
         result.put(Bodies.MESSAGE, Others.SUCCESS);
         return objectMapper.writeValueAsString(result);
@@ -145,7 +145,7 @@ public class MusicListControllerImpl implements MusicListController {
         HashMap<String, Object> result = new HashMap<>(2);
         musicListChecker.selectCountCreateBySelf(request);
         Long userId = (Long) request.getAttribute(Others.USER_ID);
-        Integer count = musicListService.selectCountByAuthorId(new MusicList().setAuthor(new User(userId)));
+        Integer count = musicListService.selectCountFromLike(userId);
         result.put(Bodies.MESSAGE, Others.SUCCESS);
         result.put(Bodies.COUNT, count);
         return objectMapper.writeValueAsString(result);
@@ -157,7 +157,7 @@ public class MusicListControllerImpl implements MusicListController {
         HashMap<String, Object> result = new HashMap<>(2);
         musicListChecker.selectCountFromLike(request);
         Long userId = (Long) request.getAttribute(Others.USER_ID);
-        Integer count = musicListService.selectCountFromLike(userId);
+        Integer count = musicListService.selectCountByAuthorId(new MusicList().setAuthor(new User(userId)));
         result.put(Bodies.MESSAGE, Others.SUCCESS);
         result.put(Bodies.COUNT, count);
         return objectMapper.writeValueAsString(result);
@@ -175,7 +175,7 @@ public class MusicListControllerImpl implements MusicListController {
     }
 
     @Override
-    @GetMapping("/admin/musicList/countAl")
+    @GetMapping("/admin/musicList/countAll")
     public String selectAllCount() throws JsonProcessingException {
         HashMap<String, Object> result = new HashMap<>(2);
         musicListChecker.selectAllCount();

@@ -1,5 +1,6 @@
 package com.example.mypractice.commons.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +41,8 @@ public class ObjectMapperConfig {
     @Bean
     public ObjectMapper getObjectMapper() {
         Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder = new Jackson2ObjectMapperBuilder();
+        //不序列化null值，让结果更加清爽
+        jackson2ObjectMapperBuilder.serializationInclusion(JsonInclude.Include.NON_NULL);
         jackson2ObjectMapperBuilder.serializerByType(Long.TYPE, SERIALIZER);
         jackson2ObjectMapperBuilder.serializerByType(Long.class, SERIALIZER);
         return jackson2ObjectMapperBuilder.build();
