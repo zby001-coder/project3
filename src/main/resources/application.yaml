@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/project3?allowMultiQueries=true
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    #连接池配置
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1
+        max-idle: 500
+        min-idle: 0
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 15MB
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.mypractice.model.database
+myconf:
+  music:
+    baseUrl: C:\Users\31405\Desktop\music\
+  mv:
+    baseUrl: C:\Users\31405\Desktop\mv\
+  cover:
+    baseUrl: C:\Users\31405\Desktop\cover\

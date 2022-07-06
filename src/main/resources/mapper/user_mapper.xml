@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mypractice.dao.UserDao">
+    <resultMap id="UserOutMap" type="user">
+        <id column="pk_id" property="id"/>
+        <result column="idx_user_name" property="userName"/>
+        <result column="identity" property="identity"/>
+        <result column="is_banned" property="isBanned"/>
+        <result column="pass" property="pass"/>
+    </resultMap>
+    <insert id="register">
+        INSERT INTO tb_user(pk_id, idx_user_name, identity, is_banned, pass)
+        VALUES (#{user.id}, #{user.userName}, #{user.identity}, #{user.INUSE}, #{user.pass})
+    </insert>
+    <select id="login" resultMap="UserOutMap">
+        SELECT pk_id, idx_user_name, identity, is_banned
+        FROM tb_user
+        WHERE
+            idx_user_name = #{user.userName}
+          AND
+            pass = #{user.pass}
+    </select>
+    <select id="selectUserByNameCommon" resultMap="UserOutMap">
+        SELECT tb_user.pk_id, idx_user_name, identity, is_banned
+        FROM
+            (SELECT pk_id FROM tb_user
+            WHERE pk_id >#{lastIndex}
+            AND idx_user_name LIKE "%"#{user.userName}"%"
+            LIMIT ${@com.example.mypractice.commons.constant.Others@PAGE_SIZE}) AS temp
+            INNER JOIN tb_user
+        ON temp.pk_id = tb_user.pk_id
+    </select>
+    <select id="selectUserByNameAdmin" resultMap="UserOutMap">
+        SELECT tb_user.pk_id, idx_user_name, identity, is_banned
+        FROM
+            (SELECT pk_id FROM tb_user
+            WHERE
+            idx_user_name LIKE "%"#{user.userName}"%"
+            LIMIT #{start}, ${@com.example.mypractice.commons.constant.Others@PAGE_SIZE}) AS temp
+            INNER JOIN tb_user
+        ON temp.pk_id = tb_user.pk_id
+    </select>
+    <select id="selectAllUsers" resultMap="UserOutMap">
+        SELECT tb_user.pk_id, idx_user_name, identity, is_banned
+        FROM
+            (SELECT pk_id FROM tb_user
+            LIMIT #{start}, ${@com.example.mypractice.commons.constant.Others@PAGE_SIZE}) AS temp
+            INNER JOIN tb_user
+        ON temp.pk_id = tb_user.pk_id
+    </select>
+    <select id="selectUserById" resultMap="UserOutMap">
+        SELECT pk_id, idx_user_name, identity, is_banned
+        FROM tb_user
+        WHERE
+            pk_id = #{user.id}
+          AND
+            identity = #{user.COMMON_USER}
+    </select>
+    <select id="selectCountByName" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user
+        WHERE idx_user_name LIKE "%"#{user.userName}"%"
+          AND
+            identity = #{user.COMMON_USER}
+    </select>
+    <select id="selectAllCount" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user
+        WHERE
+            identity = ${@com.example.mypractice.model.database.User@COMMON_USER}
+    </select>
+    <update id="banUser">
+        UPDATE tb_user
+        SET is_banned = #{user.BANNED}
+        WHERE pk_id = #{user.id}
+    </update>
+    <update id="unsealUser">
+        UPDATE tb_user
+        SET is_banned = #{user.INUSE}
+        WHERE pk_id = #{user.id}
+    </update>
+    <insert id="test">
+        INSERT INTO tb_user(pk_id, idx_user_name, identity, is_banned, pass)
+        VALUES
+        <foreach collection="users" item="user" separator=",">
+            (#{user.id}, #{user.userName}, #{user.identity}, #{user.INUSE}, #{user.pass})
+        </foreach>
+    </insert>
+</mapper>

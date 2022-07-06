@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mypractice.dao.SqlMusicDao">
+    <resultMap id="MusicOutMap" type="music">
+        <id column="pk_id" property="id"/>
+        <result column="music_name" property="musicName"/>
+        <result column="singer_name" property="singerName"/>
+    </resultMap>
+    <insert id="addMusic">
+        INSERT INTO tb_music(pk_id, music_name, singer_name)
+        VALUES (#{music.id}, #{music.musicName}, #{music.singerName})
+    </insert>
+    <delete id="deleteMusic">
+        DELETE
+        FROM tb_music
+        WHERE pk_id = #{music.id}
+    </delete>
+    <update id="updateMusic">
+        UPDATE tb_music
+        <set>
+            pk_id = #{music.id}
+            <if test="music.musicName!=null">
+                ,music_name = #{music.musicName}
+            </if>
+            <if test="music.singerName!=null">
+                ,singer_name = #{music.singerName}
+            </if>
+        </set>
+        WHERE pk_id = #{music.id}
+    </update>
+    <insert id="addMusicToList">
+        INSERT INTO tb_music_list_content(music_list_id,music_id)
+        VALUES
+        <foreach collection="musicList.music" item="music" separator=",">
+            (#{musicList.id},#{music.id})
+        </foreach>;
+        UPDATE tb_music_list
+        SET music_count = music_count+#{musicList.musicCount}
+        ,cover_url = #{lastCoverUrl}
+        WHERE pk_id = #{musicList.id};
+    </insert>
+    <delete id="deleteMusicFromList">
+        DELETE FROM tb_music_list_content
+        WHERE music_id IN (
+        <foreach collection="musicList.music" item="music" separator=",">
+            #{music.id}
+        </foreach>
+        );
+        UPDATE tb_music_list
+        SET music_count = music_count-#{musicList.musicCount}
+        WHERE pk_id = #{musicList.id}
+    </delete>
+    <insert id="addMusicToLike">
+        INSERT INTO tb_user_like_music(pk_user_id,pk_music_id)
+        VALUES
+        <foreach collection="musicId" item="id" separator=",">
+            (#{userId},#{id})
+        </foreach>
+    </insert>
+    <delete id="deleteMusicFromLike">
+        DELETE FROM tb_user_like_music
+        WHERE pk_music_id IN (
+        <foreach collection="musicId" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+        AND pk_user_id = #{userId};
+    </delete>
+    <select id="selectMusicFromLike" resultMap="MusicOutMap">
+        SELECT tb_music.pk_id, music_name, singer_name
+        FROM tb_user_like_music
+                 INNER JOIN tb_music
+                            ON tb_user_like_music.pk_music_id = tb_music.pk_id
+        WHERE pk_user_id = #{userId}
+          AND pk_music_id > #{lastIndex} LIMIT ${@com.example.mypractice.commons.constant.Others@PAGE_SIZE}
+    </select>
+    <select id="selectMusicCountFromLike" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user_like_music
+        WHERE pk_user_id = #{userId}
+    </select>
+    <select id="ifLiked" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_user_like_music
+        WHERE pk_user_id = #{userId}
+          AND pk_music_id = #{musicId}
+    </select>
+    <select id="ifCollected" resultType="int">
+        SELECT COUNT(*)
+        FROM tb_music_list_content
+        WHERE pk_list_id = #{listId}
+          AND pk_music_id = #{musicId}
+    </select>
+</mapper>
