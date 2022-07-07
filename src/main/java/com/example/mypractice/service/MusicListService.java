@@ -3,6 +3,7 @@ package com.example.mypractice.service;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.example.mypractice.commons.util.SnowflakeIdGenerator;
 import com.example.mypractice.dao.EsMusicListDao;
+import com.example.mypractice.dao.RedisDao;
 import com.example.mypractice.dao.SqlMusicListDao;
 import com.example.mypractice.model.database.MusicList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ public class MusicListService {
     private SqlMusicListDao sqlMusicListDao;
     @Autowired
     private EsMusicListDao esMusicListDao;
+    @Autowired
+    private RedisDao redisDao;
     @Autowired
     private SnowflakeIdGenerator snowflakeIdGenerator;
 
@@ -56,13 +59,13 @@ public class MusicListService {
     @Transactional(rollbackFor = Exception.class)
     public void addMusicListToLike(List<Long> ids, Long userId) throws IOException, ElasticsearchException {
         sqlMusicListDao.addListToLike(ids, userId);
-        esMusicListDao.addMusicListToLike(ids, userId);
+        redisDao.listLikeIncrease(ids);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteMusicListFromLike(List<Long> ids, Long userId) throws IOException, ElasticsearchException {
         sqlMusicListDao.deleteListFromLike(ids, userId);
-        esMusicListDao.deleteMusicListFromLike(ids, userId);
+        redisDao.listLikeDecrease(ids);
     }
 
     public List<MusicList> selectMusicListByAuthorId(MusicList musicList, Long lastIndex) {

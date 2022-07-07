@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 和ES中的MusicIndex交互的工具
@@ -290,57 +291,23 @@ public class EsMusicDao {
     /**
      * 在用户添加到"我喜欢"后，修改歌曲的收藏数
      *
-     * @param musicId 歌曲id
-     * @param userId  用户id
+     * @param counts 歌曲id和收藏数量的map
      * @return
      * @throws IOException
      * @throws ElasticsearchException
      */
-    public int addMusicToLike(List<Long> musicId, Long userId) throws IOException, ElasticsearchException {
+    public int updateMusicLike(Map<Object, Object> counts) throws IOException, ElasticsearchException {
         BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-        for (Long id : musicId) {
+        for (Map.Entry<Object, Object> entry : counts.entrySet()) {
             bulkRequestBuilder.operations(operationBuilder -> operationBuilder
                     .update(updateOperationBuilder -> updateOperationBuilder
-                            .id(Long.toString(id))
+                            .id(Long.toString((Long) entry.getKey()))
                             .index(INDEX_NAME)
                             .action(actionBuilder -> actionBuilder
                                     .script(scriptBuilder -> scriptBuilder
                                             .inline(inlineScriptBuilder -> inlineScriptBuilder
                                                     .source("ctx._source.likeCount = ctx._source.likeCount+params['count']")
-                                                    .params("count", JsonData.of(1))
-                                            )))));
-        }
-        BulkResponse response = client.bulk(bulkRequestBuilder.build());
-        for (BulkResponseItem item : response.items()) {
-            Number successful = item.shards().successful();
-            if (successful.intValue() < 1) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
-    /**
-     * 在用户从"我喜欢"删除后，修改歌曲的收藏数
-     *
-     * @param musicId 歌曲id
-     * @param userId  用户id
-     * @return
-     * @throws IOException
-     * @throws ElasticsearchException
-     */
-    public int deleteMusicFromLike(List<Long> musicId, Long userId) throws IOException, ElasticsearchException {
-        BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-        for (Long id : musicId) {
-            bulkRequestBuilder.operations(operationBuilder -> operationBuilder
-                    .update(updateOperationBuilder -> updateOperationBuilder
-                            .id(Long.toString(id))
-                            .index(INDEX_NAME)
-                            .action(actionBuilder -> actionBuilder
-                                    .script(scriptBuilder -> scriptBuilder
-                                            .inline(inlineScriptBuilder -> inlineScriptBuilder
-                                                    .source("ctx._source.likeCount = ctx._source.likeCount-params['count']")
-                                                    .params("count", JsonData.of(1))
+                                                    .params("count", JsonData.of(entry.getValue()))
                                             )))));
         }
         BulkResponse response = client.bulk(bulkRequestBuilder.build());

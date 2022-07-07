@@ -35,11 +35,7 @@
         VALUES
         <foreach collection="musicList.music" item="music" separator=",">
             (#{musicList.id},#{music.id})
-        </foreach>;
-        UPDATE tb_music_list
-        SET music_count = music_count+#{musicList.musicCount}
-        ,cover_url = #{lastCoverUrl}
-        WHERE pk_id = #{musicList.id};
+        </foreach>
     </insert>
     <delete id="deleteMusicFromList">
         DELETE FROM tb_music_list_content
@@ -47,10 +43,7 @@
         <foreach collection="musicList.music" item="music" separator=",">
             #{music.id}
         </foreach>
-        );
-        UPDATE tb_music_list
-        SET music_count = music_count-#{musicList.musicCount}
-        WHERE pk_id = #{musicList.id}
+        )
     </delete>
     <insert id="addMusicToLike">
         INSERT INTO tb_user_like_music(pk_user_id,pk_music_id)

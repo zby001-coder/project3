@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @Mapper
@@ -55,4 +56,25 @@ public interface SqlMusicListDao {
      * @return
      */
     int ifCreated(@Param("listId") Long listId, @Param("userId") Long userId);
+
+    /**
+     * 更新歌单收藏数
+     * @param counts 收藏数和id的map
+     * @return
+     */
+    int updateLikeCount(@Param("counts") Map<Object, Object> counts);
+
+    /**
+     * 更新歌单音乐数量
+     * @param counts  歌曲数量和id的map
+     * @return
+     */
+    int updateMusicCount(@Param("counts") Map<Object, Object> counts);
+
+    /**
+     * 更新歌单封面
+     * @param urls  歌单id和url的map
+     * @return
+     */
+    int updateCoverUrl(@Param("urls") Map<Object, Object> urls);
 }

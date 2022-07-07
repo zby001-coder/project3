@@ -8,7 +8,6 @@ import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.json.JsonData;
 import com.example.mypractice.commons.constant.Others;
-import com.example.mypractice.model.database.Music;
 import com.example.mypractice.model.database.MusicList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class EsMusicListDao {
@@ -61,28 +61,27 @@ public class EsMusicListDao {
     }
 
     /**
-     * 向自建歌单中添加歌曲，用脚本更新ES中的count和coverUrl
+     * 更新歌单的封面url
      *
-     * @param musicList 　歌单信息
+     * @param urls 歌单的id和它的url的map
      * @return
      * @throws IOException
      * @throws ElasticsearchException
      */
-    public int addMusicToList(MusicList musicList, String lastCoverUrl) throws IOException, ElasticsearchException {
-        UpdateResponse<MusicList> response = client.update(updateRequestBuilder -> updateRequestBuilder
-                .index(INDEX_NAME)
-                .id(Long.toString(musicList.getId()))
-                .script(scriptBuilder -> scriptBuilder
-                        .inline(inlineScriptBuilder -> inlineScriptBuilder
-                                .source("ctx._source.musicCount = ctx._source.musicCount + params.count;" +
-                                        "ctx._source.coverUrl = params.coverUrl")
-                                .params("count", JsonData.of(musicList.getMusicCount()))
-                                .params("coverUrl", JsonData.of(lastCoverUrl)))), MusicList.class);
-        Number success = response.shards().successful();
-        if (success.intValue() >= 1) {
-            return 1;
+    public void updateCoverUrl(Map<Object, Object> urls) throws IOException, ElasticsearchException {
+        BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
+        for (Map.Entry<Object, Object> entry : urls.entrySet()) {
+            bulkRequestBuilder.operations(operationBuilder -> operationBuilder
+                    .update(updateOperationBuilder -> updateOperationBuilder
+                            .index(INDEX_NAME)
+                            .id(Long.toString((Long) entry.getKey()))
+                            .action(actionBuilder -> actionBuilder
+                                    .script(scriptBuilder -> scriptBuilder
+                                            .inline(inlineScript -> inlineScript
+                                                    .source("ctx._source.coverUrl = params.coverUrl")
+                                                    .params("coverUrl", JsonData.of(entry.getValue())))))));
         }
-        return 0;
+        client.bulk(bulkRequestBuilder.build());
     }
 
     /**
@@ -228,24 +227,20 @@ public class EsMusicListDao {
     /**
      * 在用户添加到"我喜欢"后，修改歌单的收藏数
      *
-     * @param musicId 歌单id
-     * @param userId  用户id
-     * @return
-     * @throws IOException
-     * @throws ElasticsearchException
+     * @param counts 保存list的id和likeCount变化量的map
      */
-    public int addMusicListToLike(List<Long> musicId, Long userId) throws IOException, ElasticsearchException {
+    public int updateLikeCount(Map<Object, Object> counts) throws IOException, ElasticsearchException {
         BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-        for (Long id : musicId) {
+        for (Map.Entry<Object, Object> entry : counts.entrySet()) {
             bulkRequestBuilder.operations(operationBuilder -> operationBuilder
                     .update(updateOperationBuilder -> updateOperationBuilder
-                            .id(Long.toString(id))
+                            .id(Long.toString((Long) entry.getKey()))
                             .index(INDEX_NAME)
                             .action(actionBuilder -> actionBuilder
                                     .script(scriptBuilder -> scriptBuilder
                                             .inline(inlineScriptBuilder -> inlineScriptBuilder
                                                     .source("ctx._source.likeCount = ctx._source.likeCount+params['count']")
-                                                    .params("count", JsonData.of(1))
+                                                    .params("count", JsonData.of(entry.getValue()))
                                             )))));
         }
         BulkResponse response = client.bulk(bulkRequestBuilder.build());
@@ -259,26 +254,23 @@ public class EsMusicListDao {
     }
 
     /**
-     * 在用户从"我喜欢"删除后，修改歌单的收藏数
+     * 更新歌单音乐数量
      *
-     * @param musicId 歌单id
-     * @param userId  用户id
+     * @param counts 歌曲数量和id的map
      * @return
-     * @throws IOException
-     * @throws ElasticsearchException
      */
-    public int deleteMusicListFromLike(List<Long> musicId, Long userId) throws IOException, ElasticsearchException {
+    int updateMusicCount(Map<Object, Object> counts) throws IOException, ElasticsearchException {
         BulkRequest.Builder bulkRequestBuilder = new BulkRequest.Builder();
-        for (Long id : musicId) {
+        for (Map.Entry<Object, Object> entry : counts.entrySet()) {
             bulkRequestBuilder.operations(operationBuilder -> operationBuilder
                     .update(updateOperationBuilder -> updateOperationBuilder
-                            .id(Long.toString(id))
+                            .id(Long.toString((Long) entry.getKey()))
                             .index(INDEX_NAME)
                             .action(actionBuilder -> actionBuilder
                                     .script(scriptBuilder -> scriptBuilder
                                             .inline(inlineScriptBuilder -> inlineScriptBuilder
-                                                    .source("ctx._source.likeCount = ctx._source.likeCount-params['count']")
-                                                    .params("count", JsonData.of(1))
+                                                    .source("ctx._source.musicCount = ctx._source.musicCount+params['count']")
+                                                    .params("count", JsonData.of(entry.getValue()))
                                             )))));
         }
         BulkResponse response = client.bulk(bulkRequestBuilder.build());

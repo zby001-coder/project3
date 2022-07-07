@@ -4,6 +4,7 @@ import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.example.mypractice.commons.util.SnowflakeIdGenerator;
 import com.example.mypractice.dao.EsMusicDao;
 import com.example.mypractice.dao.EsMusicListDao;
+import com.example.mypractice.dao.RedisDao;
 import com.example.mypractice.dao.SqlMusicDao;
 import com.example.mypractice.model.database.Music;
 import com.example.mypractice.model.database.MusicList;
@@ -24,6 +25,8 @@ public class MusicService {
     private EsMusicDao esMusicDao;
     @Autowired
     private SqlMusicDao sqlMusicDao;
+    @Autowired
+    private RedisDao redisDao;
     @Autowired
     private EsMusicListDao esMusicListDao;
     @Value("${myconf.mv.baseUrl}")
@@ -97,26 +100,26 @@ public class MusicService {
     @Transactional(rollbackFor = Exception.class)
     public void addMusicToLike(List<Long> ids, Long userId) throws IOException, ElasticsearchException {
         sqlMusicDao.addMusicToLike(ids, userId);
-        esMusicDao.addMusicToLike(ids, userId);
+        redisDao.musicLikeIncrease(ids);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteMusicFromLike(List<Long> ids, Long userId) throws IOException, ElasticsearchException {
         sqlMusicDao.deleteMusicFromLike(ids, userId);
-        esMusicDao.deleteMusicFromLike(ids, userId);
+        redisDao.musicLikeDecrease(ids);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void addMusicToList(MusicList musicList) throws IOException, ElasticsearchException {
-        Music lastMusic = selectMusicById(musicList.getMusic().get(musicList.getMusic().size() - 1));
-        sqlMusicDao.addMusicToList(musicList, lastMusic.getCoverUrl());
-        esMusicListDao.addMusicToList(musicList,lastMusic.getCoverUrl());
+        sqlMusicDao.addMusicToList(musicList);
+        redisDao.listMusicCountChange(musicList.getId(), musicList.getMusic().size());
+        redisDao.listCoverAdd(musicList.getId(), musicList.getMusic().get(musicList.getMusic().size() - 1).getCoverUrl());
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void deleteMusicFromList(MusicList musicList) throws IOException, ElasticsearchException {
         sqlMusicDao.deleteMusicFromList(musicList);
-        esMusicListDao.deleteMusicFromList(musicList);
+        redisDao.listMusicCountChange(musicList.getId(), -musicList.getMusic().size());
     }
 
     public List<Music> selectMusicFromLike(Long lastIndex, Long userId) {

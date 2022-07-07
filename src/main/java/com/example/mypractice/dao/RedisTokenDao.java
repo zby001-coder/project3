@@ -1,6 +1,5 @@
-package com.example.mypractice.commons.util;
+package com.example.mypractice.dao;
 
-import com.example.mypractice.commons.constant.Headers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -13,19 +12,20 @@ import java.util.concurrent.TimeUnit;
  * @author 张贝易
  */
 @Component
-public class RedisUtil {
+public class RedisTokenDao {
     @Autowired
     private ValueOperations<String, Object> valueOperation;
+    private static final String AUTH_TOKEN = "AUTH_TOKEN";
 
     public void updateRedisToken(Long userId, String token) {
-        valueOperation.set(Headers.AUTH_TOKEN + ":" + userId, token, 30, TimeUnit.MINUTES);
+        valueOperation.set(AUTH_TOKEN + ":" + userId, token, 30, TimeUnit.MINUTES);
     }
 
     public void disableRedisToken(Long userId) {
-        valueOperation.getAndDelete(Headers.AUTH_TOKEN + ":" + userId);
+        valueOperation.getAndDelete(AUTH_TOKEN + ":" + userId);
     }
 
     public Object getToken(Long userId) {
-        return valueOperation.get(Headers.AUTH_TOKEN + ":" + userId);
+        return valueOperation.get(AUTH_TOKEN + ":" + userId);
     }
 }

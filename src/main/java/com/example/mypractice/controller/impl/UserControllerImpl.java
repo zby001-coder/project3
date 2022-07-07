@@ -5,7 +5,7 @@ import com.example.mypractice.commons.constant.Headers;
 import com.example.mypractice.commons.exception.FilterException;
 import com.example.mypractice.commons.exception.ServiceFailException;
 import com.example.mypractice.commons.util.JwtGenerator;
-import com.example.mypractice.commons.util.RedisUtil;
+import com.example.mypractice.dao.RedisTokenDao;
 import com.example.mypractice.controller.UserController;
 import com.example.mypractice.controller.checker.UserChecker;
 import com.example.mypractice.model.database.User;
@@ -30,7 +30,7 @@ public class UserControllerImpl implements UserController {
     @Autowired
     private JwtGenerator jwtGenerator;
     @Autowired
-    private RedisUtil redisUtil;
+    private RedisTokenDao redisTokenDao;
 
     @Override
     @PostMapping("/unAuth/user/register")
@@ -53,7 +53,7 @@ public class UserControllerImpl implements UserController {
         result.put(Bodies.MESSAGE, Bodies.SUCCESS);
         result.put(Bodies.USER, user);
         //将token保存到redis中
-        redisUtil.updateRedisToken(user.getId(), token);
+        redisTokenDao.updateRedisToken(user.getId(), token);
         return objectMapper.writeValueAsString(result);
     }
 
@@ -141,7 +141,7 @@ public class UserControllerImpl implements UserController {
         userService.unsealUser(user);
         result.put(Bodies.MESSAGE, Bodies.SUCCESS);
         //取消用户的token，防止封禁后还能登录
-        redisUtil.disableRedisToken(user.getId());
+        redisTokenDao.disableRedisToken(user.getId());
         return objectMapper.writeValueAsString(result);
     }
 }

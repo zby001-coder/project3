@@ -25,7 +25,8 @@
     <insert id="addMusicList">
         INSERT INTO tb_music_list(pk_id, list_name, music_count, author_id, is_banned, list_description,
                                   create_time, like_count)
-        VALUES (#{musicList.id}, #{musicList.name}, #{musicList.musicCount}, #{musicList.author.id}, #{musicList.IN_USE},
+        VALUES (#{musicList.id}, #{musicList.name}, #{musicList.musicCount}, #{musicList.author.id},
+                #{musicList.IN_USE},
                 #{musicList.description}, #{musicList.createTime}, 0)
     </insert>
     <delete id="deleteMusicList">
@@ -98,14 +99,7 @@
         VALUES
         <foreach collection="listId" item="id" separator=",">
             (#{userId},#{id})
-        </foreach>;
-        UPDATE tb_music_list
-        SET like_count = like_count+1
-        WHERE pk_id IN (
-        <foreach collection="listId" item="id" separator=",">
-            #{id}
         </foreach>
-        )
     </insert>
     <delete id="deleteListFromLike">
         DELETE FROM tb_user_like_list
@@ -114,14 +108,7 @@
             #{id}
         </foreach>
         )
-        AND pk_user_id = #{userId};
-        UPDATE tb_music_list
-        SET like_count = like_count-1
-        WHERE pk_id IN (
-        <foreach collection="listId" item="id" separator=",">
-            #{id}
-        </foreach>
-        )
+        AND pk_user_id = #{userId}
     </delete>
     <select id="selectListFromLike" resultMap="MusicListOutMap">
         SELECT tb_music_list.pk_id, list_name, music_count, author_id, idx_user_name, cover_url
@@ -148,4 +135,25 @@
         WHERE author_id = #{userId}
           AND pk_id = #{listId}
     </select>
+    <update id="updateMusicListLikeCount">
+        <foreach collection="counts.entrySet()" item="count" index="id" separator=";">
+            UPDATE tb_music_list
+            SET like_count = like_count+#{count}
+            WHERE pk_id = #{id}
+        </foreach>
+    </update>
+    <update id="updateMusicCount">
+        <foreach collection="counts.entrySet()" item="count" index="id" separator=";">
+            UPDATE tb_music_list
+            SET music_count = music_count+#{count}
+            WHERE pk_id = #{id}
+        </foreach>
+    </update>
+    <update id="updateCoverUrl">
+        <foreach collection="urls.entrySet()" item="url" index="id" separator=";">
+            UPDATE tb_music_list
+            SET cover_url = #{url}
+            WHERE pk_id = #{id}
+        </foreach>
+    </update>
 </mapper>

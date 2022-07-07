@@ -17,7 +17,7 @@ public interface SqlMusicDao {
 
     int updateMusic(@Param("music") Music music);
 
-    int addMusicToList(@Param("musicList") MusicList musicList,@Param("lastCoverUrl") String lastCoverUrl);
+    int addMusicToList(@Param("musicList") MusicList musicList);
 
     int deleteMusicFromList(@Param("musicList") MusicList musicList);
 
