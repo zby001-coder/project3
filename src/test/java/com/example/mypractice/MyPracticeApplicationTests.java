@@ -61,12 +61,12 @@ class MyPracticeApplicationTests {
     // And create the API client
     ElasticsearchClient client = new ElasticsearchClient(transport);
 
-    @Test
+    
     void contextLoads() throws Exception {
         System.out.println(objectMapper.writeValueAsString(new Music()));
     }
 
-    @Test
+    
     void test1() {
         for (int i = 0; i < 1000; i++) {
             long id = snowflakeIdGenerator.nextId();
@@ -75,7 +75,7 @@ class MyPracticeApplicationTests {
         }
     }
 
-    @Test
+    
     void test2() throws IOException {
         FileInputStream fileInputStream = new FileInputStream("C:\\Users\\31405\\Desktop\\lyric.txt");
         byte[] buffer = new byte[1024 * 1024 * 2];
@@ -100,7 +100,7 @@ class MyPracticeApplicationTests {
         }
     }
 
-    @Test
+    
     void test3() throws IOException {
         GetResponse<User> response = client.get(g -> g
                         .index("user")
@@ -112,7 +112,7 @@ class MyPracticeApplicationTests {
         System.out.println(response.primaryTerm());
     }
 
-    @Test
+    
     void test4() throws IOException {
         //search需要一个SearchRequest来作为参数，生成SearchRequest的过程被包装了三层
         //最外层是SearchRequestBuilder，它用来确定查询的索引是哪个，分页怎么分，还有一些和具体查询无关的东西，它生成一个SearchRequest，同时需要一个Query
@@ -148,7 +148,7 @@ class MyPracticeApplicationTests {
 //        }
     }
 
-    @Test
+    
     void test5() throws IOException {
         FileInputStream fileInputStream = new FileInputStream("C:\\Users\\31405\\Desktop\\lyric.txt");
         byte[] buffer = new byte[1024 * 1024 * 2];
@@ -158,22 +158,22 @@ class MyPracticeApplicationTests {
         esMusicDao.addMusic(music);
     }
 
-    @Test
+    
     void test6() throws IOException {
         esMusicDao.deleteMusic(new Music(2478097668505600L));
     }
 
-    @Test
+    
     void test7() throws IOException {
         System.out.println(esMusicDao.updateMusic(new Music(2478097668505600L, "张三", "李四")));
     }
 
-    @Test
+    
     void test8() throws IOException {
         System.out.println(esMusicDao.selectMusicById(new Music(2481071983689728L)));
     }
 
-    @Test
+    
     void test9() throws Exception {
         Long lastIndex = null;
         Double lastScore = null;
@@ -197,7 +197,7 @@ class MyPracticeApplicationTests {
         }
     }
 
-    @Test
+    
     void test10() throws Exception {
         Long lastIndex = null;
         Double lastScore = null;
@@ -221,12 +221,12 @@ class MyPracticeApplicationTests {
         }
     }
 
-    @Test
+    
     void test11() throws IOException {
         System.out.println(esMusicDao.selectCountByName(new Music().setMusicName("爱情")));
     }
 
-    @Test
+    
     void test12() throws IOException {
         String a = "想你的夜 - 关喆\\n" +
                 "词：关喆\\n" +
@@ -274,7 +274,7 @@ class MyPracticeApplicationTests {
         fileOutputStream.write(a.getBytes());
     }
 
-    @Test
+    
     void test13() throws Exception {
         Long lastIndex = null;
         HashSet<Long> ids = new HashSet<>();
@@ -292,12 +292,12 @@ class MyPracticeApplicationTests {
         }
     }
 
-    @Test
+    
     void test14() throws IOException {
         System.out.println(esMusicDao.selectAllCount());
     }
 
-    @Test
+    
     void test15() throws IOException {
         byte[] buffer = new byte[1024 * 1024 * 20];
         Long start = System.currentTimeMillis();
@@ -307,7 +307,7 @@ class MyPracticeApplicationTests {
         System.out.println(end - start);
     }
 
-    @Test
+    
     void test16() throws IOException {
         byte[] content = new byte[1024 * 1024 * 1024];
         Long start = System.currentTimeMillis();
@@ -321,7 +321,7 @@ class MyPracticeApplicationTests {
         System.out.println(end - start);
     }
 
-    @Test
+    
     void test17() throws IOException {
         List<Music> musicList = new LinkedList<>();
         musicList.add(new Music(2481071983689728L));
@@ -330,7 +330,7 @@ class MyPracticeApplicationTests {
 //        System.out.println(musicDao.selectMusicById(new Music(2481072017244161L)));
     }
 
-    @Test
+    
     void test18() throws JsonProcessingException {
         List<Music> music = new LinkedList<>();
         music.add(new Music(12L));
@@ -339,7 +339,7 @@ class MyPracticeApplicationTests {
         System.out.println(musicList);
     }
 
-    @Test
+    
     void test19() throws IOException {
         List<Music> music = new LinkedList<>();
         music.add(new Music(12L));
@@ -349,7 +349,7 @@ class MyPracticeApplicationTests {
         esMusicListDao.addMusicList(musicList);
     }
 
-    @Test
+    
     void test20() throws IOException {
         List<Music> music = new LinkedList<>();
         music.add(new Music(12L));
